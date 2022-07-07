@@ -1,8 +1,9 @@
 const FILES_TO_CACHE = [
-    "./index.html",
-    "./css/styles.css",
-    "./js/idb.js",
-    "./js/index.js"
+    "/index.html",
+    "/manifest.json",
+    "/css/styles.css",
+    "/js/idb.js",
+    "/js/index.js"
 ];
 
 const APP_PREFIX = 'BudgetTracker-';
@@ -37,19 +38,36 @@ self.addEventListener('activate', function(event) {
 })
 
 self.addEventListener('fetch', function (event) {
-    console.log('Fetch request : ' + event.request.url)
+    if (event.request.url.includes('/api/')){
+        event.respondWith(
+            caches
+                // .open(DATA_CACHE_NAME)
+                .then(cache => {
+                    return fetch(event.request)
+                        .then(response => {
+                            if(response.status === 200){
+                                cache.put(event.request.url, response.clone());
+                            }
+                            return response;
+                        })
+                        .catch(err => {
+                            return cache.match(event.request);
+                        });
+                })
+                .catch(err => console.log(err))
+        );
+        return
+    }
     event.respondWith(
-        caches.match(event.request).then(function(request){
-            if(request){
-                // if cache is available respond with cache
-                console.log('Responding with cache: ' + event.request.url)
-                return request
-            }
-            else {
-                // if there is no cache, try fetching request
-                console.log('File is not cached, fetching: ' + event.request.url)
-                return(event.request)
-            }
+        fetch(event.request).catch(function() {
+            return caches.match(event.request).then(function(response){
+                if(response){
+                    return response;
+                }
+                else if(event.request.headers.get('accept').includes('text/html')){
+                    return caches.match('/');
+                }
+            });
         })
-    )
+    );
 })
