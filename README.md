@@ -19,6 +19,9 @@
 
   ## Installation
   [Deployed at Heroku](https://pacific-woodland-70445.herokuapp.com/)
+
+  To install the application, simply click on the 'Install' icon in the top right hand corner of your browser. (Pictured below)
+  ![](./public/assets/images/ScrnShot2.png)
   
   ## Testing
   To test out the cache and indexedDB open up Chrome DevTools and in the Network Tab turn the network offline.  The app should still be able to add/subtract funds. 
